@@ -34,6 +34,64 @@ class GDPRCN_Frontend {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'render' ), 5 );
 		add_shortcode( 'gdprcn_settings_link', array( __CLASS__, 'settings_link_shortcode' ) );
+		add_filter( 'wp_nav_menu_objects', array( __CLASS__, 'menu_item' ), 10, 2 );
+	}
+
+	/**
+	 * Append a "Cookie settings" item to the chosen navigation menus.
+	 *
+	 * Added as a real menu item object (not raw HTML) so themes and page
+	 * builders such as Elementor style it like the other items.
+	 *
+	 * @param array    $items Sorted menu item objects.
+	 * @param stdClass $args  wp_nav_menu() arguments.
+	 * @return array
+	 */
+	public static function menu_item( $items, $args ) {
+		$s = gdprcn_get_settings();
+		if ( 'menu' !== $s['revisit_mode'] || empty( $s['revisit_menus'] ) || ! self::active() ) {
+			return $items;
+		}
+
+		// wp_nav_menu() may be given a menu (ID, slug, name or term) or only a theme location.
+		$menu = ! empty( $args->menu ) ? wp_get_nav_menu_object( $args->menu ) : false;
+		if ( ! $menu && ! empty( $args->theme_location ) ) {
+			$locations = get_nav_menu_locations();
+			$menu      = isset( $locations[ $args->theme_location ] ) ? wp_get_nav_menu_object( $locations[ $args->theme_location ] ) : false;
+		}
+		if ( ! $menu || ! in_array( (int) $menu->term_id, array_map( 'intval', $s['revisit_menus'] ), true ) ) {
+			return $items;
+		}
+
+		$order = 0;
+		foreach ( $items as $item ) {
+			$order = max( $order, (int) $item->menu_order );
+		}
+
+		$items[] = (object) array(
+			'ID'                    => 0,
+			'db_id'                 => 0,
+			'menu_item_parent'      => '0',
+			'object_id'             => '0',
+			'object'                => 'custom',
+			'type'                  => 'custom',
+			'type_label'            => '',
+			'title'                 => gdprcn_text( 'revisit_label' ),
+			'url'                   => '#cookie-settings',
+			'target'                => '',
+			'attr_title'            => '',
+			'description'           => '',
+			'classes'               => array( 'menu-item', 'menu-item-type-custom', 'gdprcn-menu-item' ),
+			'xfn'                   => '',
+			'current'               => false,
+			'current_item_ancestor' => false,
+			'current_item_parent'   => false,
+			'menu_order'            => $order + 1,
+			'post_parent'           => 0,
+			'post_type'             => 'nav_menu_item',
+		);
+
+		return $items;
 	}
 
 	/**
@@ -216,6 +274,7 @@ class GDPRCN_Frontend {
 			'gdprcn-customize-' . $s['customize_style'],
 			'gdprcn-order-' . $s['button_order'],
 			'gdprcn-revisit-' . $s['revisit_position'],
+			'gdprcn-reject-' . $s['reject_button'],
 		);
 		foreach ( array( 'mobile_bar', 'overlay', 'shadow', 'animation' ) as $flag ) {
 			$classes[] = 'gdprcn-' . ( empty( $s[ $flag ] ) ? 'no-' : '' ) . str_replace( '_', '-', $flag );
@@ -314,8 +373,8 @@ class GDPRCN_Frontend {
 				</div>
 			</div>
 
-			<?php if ( ! empty( $s['revisit_button'] ) || $preview ) : ?>
-				<button type="button" id="gdprcn-revisit" class="gdprcn-revisit gdprcn-revisit-style-<?php echo esc_attr( $s['revisit_style'] ); ?> gdprcn-open-settings" aria-label="<?php echo esc_attr( $t( 'revisit_label' ) ); ?>" title="<?php echo esc_attr( $t( 'revisit_label' ) ); ?>"<?php echo $preview && empty( $s['revisit_button'] ) ? ' hidden' : $hidden; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+			<?php if ( 'button' === $s['revisit_mode'] || $preview ) : ?>
+				<button type="button" id="gdprcn-revisit" class="gdprcn-revisit gdprcn-revisit-style-<?php echo esc_attr( $s['revisit_style'] ); ?> gdprcn-open-settings" aria-label="<?php echo esc_attr( $t( 'revisit_label' ) ); ?>" title="<?php echo esc_attr( $t( 'revisit_label' ) ); ?>"<?php echo $preview && 'button' !== $s['revisit_mode'] ? ' hidden' : $hidden; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
 					<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5Zm-3.5 7a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6 5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm-7 2a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>
 					<span class="gdprcn-revisit-label" data-gdprcn-text="revisit_label"><?php echo esc_html( $t( 'revisit_label' ) ); ?></span>
 				</button>

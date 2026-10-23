@@ -69,7 +69,8 @@
 			'gdprcn-pos-' + setting('position'),
 			'gdprcn-customize-' + setting('customize_style'),
 			'gdprcn-order-' + setting('button_order'),
-			'gdprcn-revisit-' + setting('revisit_position')
+			'gdprcn-revisit-' + setting('revisit_position'),
+			'gdprcn-reject-' + setting('reject_button')
 		];
 		['mobile_bar', 'overlay', 'shadow', 'animation'].forEach(function (flag) {
 			classes.push('gdprcn-' + (setting(flag) ? '' : 'no-') + flag.replace('_', '-'));
@@ -77,7 +78,7 @@
 		root.className = classes.join(' ');
 
 		$root.find('.gdprcn-revisit')
-			.prop('hidden', !setting('revisit_button'))
+			.prop('hidden', setting('revisit_mode') !== 'button')
 			.removeClass('gdprcn-revisit-style-icon gdprcn-revisit-style-text')
 			.addClass('gdprcn-revisit-style-' + setting('revisit_style'));
 	}
@@ -135,9 +136,18 @@
 		});
 	}
 
+	// Rows that only apply to one choice, e.g. data-gdprcn-show-when="revisit_mode=menu".
+	function updateConditionalRows() {
+		$('[data-gdprcn-show-when]').each(function () {
+			var rule = this.getAttribute('data-gdprcn-show-when').split('=');
+			this.hidden = setting(rule[0]) !== rule[1];
+		});
+	}
+
 	function update() {
 		updateStyle();
 		updateTexts();
+		updateConditionalRows();
 	}
 
 	function showView(view) {

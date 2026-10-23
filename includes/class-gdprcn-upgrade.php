@@ -47,7 +47,16 @@ class GDPRCN_Upgrade {
 	 * @return array
 	 */
 	public static function migrations() {
-		return array();
+		return array(
+			// The on/off floating button became a choice between button, menu item or neither.
+			'1.3.0' => function ( $s ) {
+				if ( ! isset( $s['revisit_mode'] ) ) {
+					$s['revisit_mode'] = isset( $s['revisit_button'] ) && empty( $s['revisit_button'] ) ? 'none' : 'button';
+				}
+				unset( $s['revisit_button'] );
+				return $s;
+			},
+		);
 	}
 
 	/**

@@ -43,7 +43,9 @@ function gdprcn_defaults() {
 		'position'           => 'bottom',
 		'mobile_bar'         => 1,
 		'overlay'            => 1,
-		'revisit_button'     => 1,
+		'reject_button'      => 'both',
+		'revisit_mode'       => 'button',
+		'revisit_menus'      => array(),
 		'revisit_position'   => 'left',
 		'revisit_style'      => 'icon',
 

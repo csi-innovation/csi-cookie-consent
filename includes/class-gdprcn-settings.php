@@ -197,6 +197,16 @@ class GDPRCN_Settings {
 	private static function choices() {
 		return array(
 			'position'         => self::positions(),
+			'reject_button'    => array(
+				'both'  => __( 'Show on the banner and in the preferences', 'csi-cookie-consent' ),
+				'prefs' => __( 'Hide on the banner (keep in the preferences)', 'csi-cookie-consent' ),
+				'none'  => __( 'Hide everywhere', 'csi-cookie-consent' ),
+			),
+			'revisit_mode'     => array(
+				'button' => __( 'Floating button', 'csi-cookie-consent' ),
+				'menu'   => __( 'Menu item', 'csi-cookie-consent' ),
+				'none'   => __( 'Neither – I’ll add a link myself', 'csi-cookie-consent' ),
+			),
 			'revisit_position' => array(
 				'left'  => __( 'Bottom left', 'csi-cookie-consent' ),
 				'right' => __( 'Bottom right', 'csi-cookie-consent' ),
@@ -280,7 +290,7 @@ class GDPRCN_Settings {
 			$out[ $key ] = '' !== $value ? $value : $defaults[ $key ];
 		}
 
-		foreach ( array( 'enabled', 'mobile_bar', 'overlay', 'shadow', 'animation', 'revisit_button', 'reload_on_withdraw', 'consent_mode', 'log_enabled' ) as $key ) {
+		foreach ( array( 'enabled', 'mobile_bar', 'overlay', 'shadow', 'animation', 'reload_on_withdraw', 'consent_mode', 'log_enabled' ) as $key ) {
 			$out[ $key ] = empty( $input[ $key ] ) ? 0 : 1;
 		}
 
@@ -298,6 +308,11 @@ class GDPRCN_Settings {
 		}
 
 		$out['policy_page'] = isset( $input['policy_page'] ) ? absint( $input['policy_page'] ) : 0;
+
+		// Only menus that exist on this site.
+		$menu_ids             = wp_list_pluck( wp_get_nav_menus(), 'term_id' );
+		$requested            = isset( $input['revisit_menus'] ) ? array_map( 'absint', (array) $input['revisit_menus'] ) : array();
+		$out['revisit_menus'] = array_values( array_intersect( $requested, array_map( 'intval', $menu_ids ) ) );
 
 		// Custom CSS follows the same rule as the Customizer's "Additional CSS".
 		$out['custom_css'] = current_user_can( 'edit_css' ) && isset( $input['custom_css'] )
@@ -759,19 +774,68 @@ class GDPRCN_Settings {
 		self::row( __( 'Dim the page', 'csi-cookie-consent' ), self::checkbox( $s, 'overlay', __( 'Darken the page behind the centred dialog', 'csi-cookie-consent' ) ) );
 		self::row( __( 'Phones', 'csi-cookie-consent' ), self::checkbox( $s, 'mobile_bar', __( 'Show as a full-width bar at the bottom on small screens', 'csi-cookie-consent' ) ) );
 		self::row( __( 'Button order', 'csi-cookie-consent' ), self::select( $s, 'button_order' ), '', self::id( 'button_order' ) );
+		self::row(
+			__( '"Reject all" button', 'csi-cookie-consent' ),
+			self::select( $s, 'reject_button' ),
+			__( 'EU regulators (EDPB, CNIL and others) expect rejecting to be as easy as accepting. Hiding "Reject all" on the banner can make the consent you collect invalid. If you hide it, visitors can still refuse through "Customise", and you should adjust the banner message, which mentions rejecting.', 'csi-cookie-consent' ),
+			self::id( 'reject_button' )
+		);
 		echo '</table>';
 
-		echo '<h2 class="title">' . esc_html__( 'Floating "cookie settings" button', 'csi-cookie-consent' ) . '</h2>';
-		echo '<table class="form-table" role="presentation">';
-		self::row( __( 'Show', 'csi-cookie-consent' ), self::checkbox( $s, 'revisit_button', __( 'Show a floating button after a choice is made, so visitors can change it later', 'csi-cookie-consent' ) ) );
-		self::row( __( 'Position', 'csi-cookie-consent' ), self::select( $s, 'revisit_position' ), '', self::id( 'revisit_position' ) );
-		self::row( __( 'Style', 'csi-cookie-consent' ), self::select( $s, 'revisit_style' ), '', self::id( 'revisit_style' ) );
-		echo '</table>';
+		echo '<h2 class="title">' . esc_html__( 'Changing consent later', 'csi-cookie-consent' ) . '</h2>';
+		echo '<p>' . esc_html__( 'Visitors must always be able to change or withdraw their choice. Choose how they reopen the cookie preferences.', 'csi-cookie-consent' ) . '</p>';
+		echo '<table class="form-table" role="presentation"><tbody>';
+		self::row( __( 'Show as', 'csi-cookie-consent' ), self::select( $s, 'revisit_mode' ), '', self::id( 'revisit_mode' ) );
+		echo '</tbody><tbody data-gdprcn-show-when="revisit_mode=button">';
+		self::row( __( 'Button position', 'csi-cookie-consent' ), self::select( $s, 'revisit_position' ), '', self::id( 'revisit_position' ) );
+		self::row( __( 'Button style', 'csi-cookie-consent' ), self::select( $s, 'revisit_style' ), '', self::id( 'revisit_style' ) );
+		echo '</tbody><tbody data-gdprcn-show-when="revisit_mode=menu">';
+		self::row(
+			__( 'Add to menus', 'csi-cookie-consent' ),
+			self::menu_checklist( $s ),
+			__( 'A "Cookie settings" item is added at the end of each chosen menu, in the visitor’s language. With Polylang there is usually one menu per language, so tick each of them.', 'csi-cookie-consent' )
+		);
+		echo '</tbody></table>';
 
 		echo '<p class="description">' . wp_kses(
-			__( 'Visitors must always be able to change their choice. Without the floating button, use the <code>[gdprcn_settings_link]</code> shortcode, a menu link to <code>#cookie-settings</code>, or any element with the class <code>gdprcn-open-settings</code>.', 'csi-cookie-consent' ),
+			__( 'You can also link to the preferences from anywhere: the <code>[gdprcn_settings_link]</code> shortcode, a custom menu link to <code>#cookie-settings</code>, or any element with the class <code>gdprcn-open-settings</code>.', 'csi-cookie-consent' ),
 			array( 'code' => array() )
 		) . '</p>';
+	}
+
+	/**
+	 * Checkboxes for the site's navigation menus.
+	 *
+	 * @param array $s Settings.
+	 * @return string
+	 */
+	private static function menu_checklist( $s ) {
+		$menus = wp_get_nav_menus();
+		if ( ! $menus ) {
+			return '<em>' . esc_html__( 'This site has no menus yet (Appearance → Menus).', 'csi-cookie-consent' ) . '</em>';
+		}
+
+		$registered = get_registered_nav_menus();
+		$assigned   = array();
+		foreach ( get_nav_menu_locations() as $location => $menu_id ) {
+			if ( $menu_id && isset( $registered[ $location ] ) ) {
+				$assigned[ $menu_id ][] = $registered[ $location ];
+			}
+		}
+
+		$html = '<fieldset>';
+		foreach ( $menus as $menu ) {
+			$html .= sprintf(
+				'<label style="display:block;margin-bottom:4px"><input type="checkbox" name="%s[]" value="%d" %s> %s%s</label>',
+				esc_attr( self::name( 'revisit_menus' ) ),
+				(int) $menu->term_id,
+				checked( in_array( (int) $menu->term_id, array_map( 'intval', $s['revisit_menus'] ), true ), true, false ),
+				esc_html( $menu->name ),
+				isset( $assigned[ $menu->term_id ] ) ? ' <span class="description">(' . esc_html( implode( ', ', $assigned[ $menu->term_id ] ) ) . ')</span>' : ''
+			);
+		}
+
+		return $html . '</fieldset>';
 	}
 
 	/**

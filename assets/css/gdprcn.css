@@ -175,6 +175,12 @@
 	text-decoration: underline;
 }
 
+/* Optional "Reject all": hidden on the banner only, or everywhere */
+.gdprcn-reject-prefs .gdprcn-banner .gdprcn-btn-reject,
+.gdprcn-reject-none .gdprcn-btn-reject {
+	display: none;
+}
+
 /* Button order */
 .gdprcn-order-accept-first .gdprcn-btn-accept { order: 1; }
 .gdprcn-order-accept-first .gdprcn-btn-reject { order: 2; }

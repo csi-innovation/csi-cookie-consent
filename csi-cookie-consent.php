@@ -3,7 +3,7 @@
  * Plugin Name:       CSI Cookie Consent
  * Plugin URI:        https://github.com/csi-innovation/csi-cookie-consent
  * Description:       GDPR / ePrivacy cookie consent banner with granular categories, prior script blocking, Google Consent Mode v2 and a consent log.
- * Version:           1.2.0
+ * Version:           1.3.0
  * Requires at least: 5.8
  * Requires PHP:      7.4
  * Author:            CSI
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'GDPRCN_VERSION', '1.2.0' );
+define( 'GDPRCN_VERSION', '1.3.0' );
 define( 'GDPRCN_FILE', __FILE__ );
 define( 'GDPRCN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'GDPRCN_URL', plugin_dir_url( __FILE__ ) );

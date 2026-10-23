@@ -15,7 +15,7 @@ class GDPRCN_Transfer {
 	/**
 	 * Settings that belong to one site and are kept on import unless asked otherwise.
 	 */
-	const SITE_SPECIFIC = array( 'policy_page', 'revision' );
+	const SITE_SPECIFIC = array( 'policy_page', 'revision', 'revisit_menus' );
 
 	/**
 	 * Hook into WordPress.

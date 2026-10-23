@@ -2,7 +2,7 @@
 Requires at least: 5.8
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPL-2.0-or-later
 
 Lightweight GDPR / ePrivacy cookie consent banner with granular categories, prior script blocking, Google Consent Mode v2 and an anonymised consent log.
@@ -25,10 +25,15 @@ Lightweight GDPR / ePrivacy cookie consent banner with granular categories, prio
 * Live preview at the top of the page, updated as you edit, with a Banner / Preferences view and a language switch.
 * Text: every visitor-facing text, including button labels and screen-reader labels.
 * Translations: works with Polylang or WPML (or a manual list of language codes). Each language has its own set of texts; empty fields fall back to the default language. The policy link uses the translated policy page automatically. Suggested translations are bundled for bg, de, el, es, fr, it, nl, pl and sr (Cyrillic) – have a native speaker review them.
-* Layout & position: full-width bar (top/bottom), floating box (four corners or bottom centre) or centred dialog; box width; dimmed page; full-width bar on phones; button order; floating "cookie settings" button position and style.
+* Layout & position: full-width bar (top/bottom), floating box (four corners or bottom centre) or centred dialog; box width; dimmed page; full-width bar on phones; button order; "Reject all" on the banner, in the preferences only, or hidden; how visitors reopen the preferences: floating button (position, style), a menu item in chosen menus, or neither.
 * Styling: colour presets, four colours, font, font size, corner and button radius, "Customise" button style, shadow, fade-in, and custom CSS.
 
 == Changelog ==
+
+= 1.3.0 =
+* "Reject all" can be shown on the banner and in the preferences (default), hidden on the banner only, or hidden everywhere. The settings page warns that EU regulators expect rejecting to be as easy as accepting.
+* Visitors can reopen the cookie preferences through a floating button (as before), a "Cookie settings" item added to chosen navigation menus (works with Elementor menus and one menu per Polylang language), or neither.
+* Existing sites keep their floating-button setting when they update.
 
 = 1.2.0 =
 * Updates now come from the plugin's GitHub releases (csi-innovation/csi-cookie-consent) and appear in WP Admin like any other plugin update, including "View details" and optional auto-updates.
