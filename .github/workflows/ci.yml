@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.4', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: none
+      - name: PHP syntax
+        run: find . -name '*.php' -not -path './dist/*' -print0 | xargs -0 -n1 php -l
+      - name: JS syntax
+        run: for f in assets/js/*.js; do node --check "$f"; done
+      - name: Version consistency
+        run: bin/check-version.sh
+      - name: Build
+        run: bin/build.sh

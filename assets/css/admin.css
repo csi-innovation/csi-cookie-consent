@@ -1,0 +1,103 @@
+/* CSI Cookie Consent – settings page */
+.gdprcn-admin [hidden] {
+	display: none !important;
+}
+
+.gdprcn-preview-wrap {
+	max-width: 1100px;
+	margin: 16px 0 8px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	background: #fff;
+	overflow: hidden;
+}
+
+.gdprcn-preview-toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 16px;
+	align-items: center;
+	padding: 8px 12px;
+	border-bottom: 1px solid #c3c4c7;
+}
+
+.gdprcn-preview-views .button.is-active {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+}
+
+.gdprcn-preview-stage {
+	position: relative;
+	height: 400px;
+	overflow: hidden;
+	background: #f6f7f7;
+}
+
+/* Placeholder "page content" behind the banner */
+.gdprcn-preview-page {
+	padding: 28px 32px;
+}
+
+.gdprcn-preview-page span {
+	display: block;
+	height: 12px;
+	margin-bottom: 14px;
+	border-radius: 6px;
+	background: #dcdcde;
+}
+
+.gdprcn-preview-page span:first-child {
+	width: 40%;
+	height: 22px;
+	margin-bottom: 24px;
+}
+
+.gdprcn-preview-page span:nth-child(2) { width: 90%; }
+.gdprcn-preview-page span:nth-child(3) { width: 75%; }
+.gdprcn-preview-page span:nth-child(4) { width: 85%; }
+.gdprcn-preview-page span:nth-child(5) { width: 60%; }
+
+/* Keep admin styles from leaking into the preview */
+.gdprcn-preview-stage .gdprcn-dialog h2.gdprcn-title {
+	margin: 0 0 6px;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+.gdprcn-tabs {
+	margin-top: 16px;
+}
+
+.gdprcn-panel textarea.large-text {
+	max-width: 720px;
+}
+
+.gdprcn-lang-picker select {
+	min-width: 280px;
+	margin-left: 8px;
+}
+
+.gdprcn-fill-status {
+	margin-left: 8px;
+	color: #00a32a;
+}
+
+.gdprcn-clear-lang {
+	margin-left: 8px !important;
+	color: #b32d2e !important;
+}
+
+.gdprcn-preset {
+	margin: 0 4px 4px 0 !important;
+}
+
+.gdprcn-swatch {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	margin: -2px 6px 0 0;
+	border: 3px solid;
+	border-radius: 50%;
+	vertical-align: middle;
+}

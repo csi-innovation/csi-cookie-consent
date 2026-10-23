@@ -1,0 +1,40 @@
+name: Release
+
+# Push a tag like v1.2.0 to publish a release. Installed sites pick it up
+# through update.json, which is attached to every release.
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: none
+      - name: PHP syntax
+        run: find . -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: JS syntax
+        run: for f in assets/js/*.js; do node --check "$f"; done
+      - name: Version matches tag
+        run: bin/check-version.sh "${GITHUB_REF_NAME#v}"
+      - name: Build
+        run: bin/build.sh
+      - name: Release notes
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="= $version =" '$0==v{f=1;next} /^= /{f=0} f' readme.txt > dist/notes.md
+          cat dist/notes.md
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/csi-cookie-consent.zip dist/update.json \
+            --title "CSI Cookie Consent ${GITHUB_REF_NAME#v}" \
+            --notes-file dist/notes.md
